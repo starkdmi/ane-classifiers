@@ -16,14 +16,16 @@ Switch between them with ⌘K / ⌘D. Everything runs on the Mac; no frame leave
 
 ## Results
 
-M1 Pro (14-inch MacBook Pro, 2021, 16 GB), built-in FaceTime HD camera (1080p, 30 fps), with everyday apps open.
+M1 Pro (14-inch MacBook Pro, 2021, 16 GB), built-in FaceTime HD camera (1080p, 30 fps), with everyday apps open,
+macOS's default camera processing and its Background effect on ([Camera processing](#camera-processing) has faster
+settings).
 
 | | Classic (Core ML, ANE) | d1-2B (MLX, GPU) |
 |---|---|---|
 | Model size | ~13 MB (BlazeFace 0.5 + EmotiEffLib 7.8 + YOLOv10n 4.5) | 2.1 GB (8-bit) |
 | Time per decision | ~10–15 ms typical, ~20–25 ms when it waits on the ANE (see below) | ~620–665 ms (vision 110 + backbone 550) |
 | Decisions per second | 30 (the camera's limit); 80–90 uncapped | 1.5–2 |
-| Capture → decision | ~80–120 ms (mostly the camera's own delivery) | ~710–800 ms |
+| Capture → decision | ~80–120 ms, mostly the camera's own delivery (~45 ms with its processing off) | ~710–800 ms |
 | Two hands | Separate boxes and labels | One box, one answer |
 | Added power (whole Mac) | ~4 W at 30 decisions per second | ~16 W (the GPU alone reads ~20 W); fans on after ~2 min |
 | Energy per decision | ~0.15 J | ~10 J |
@@ -41,12 +43,53 @@ about ±1–2 W of noise. App memory is `footprint` of the running app; with the
 
 What the measurements turned up:
 
-- **The camera uses the Neural Engine too.** While the camera streams, macOS's own camera processing keeps the ANE
-  around 40% busy. About a quarter of our ANE calls then wait 15–20 ms behind it. With the camera off, almost none do.
+- **The camera uses the Neural Engine too.** The camera daemon runs a neural denoiser on the Neural Engine for every
+  stream, and the Background effect runs another model. Together they keep it around 40% busy, and many of our ANE
+  calls wait 15–20 ms behind them. With the camera off, almost none do.
 - **The camera costs more power than the classic models.** With the camera on and no model running, the Mac draws
-  ~7 W more than idle (~19 W vs ~11–12 W). Classic adds ~4 W on top of that, d1 ~16 W.
+  ~7 W more than idle (~19 W vs ~11–12 W). Classic adds ~4 W on top of that, d1 ~16 W. Most of the camera's share is
+  its processing, which can be turned off (below).
 - **Apple's Vision face detector costs 15–25 ms** on the M1 Pro on any compute device; BlazeFace on the ANE takes ~1 ms.
-- **Most latency is the camera.** About 70–140 ms pass between the capture timestamp and the frame reaching the app.
+- **Most latency is the camera.** About 90–110 ms pass between the capture timestamp and the frame reaching the app,
+  ~60 ms with the Background effect off, ~30 ms with the camera's processing off too.
+
+## Camera processing
+
+macOS processes every FaceTime HD frame before an app gets it: the camera daemon (`appleh13camerad`) runs a neural
+denoiser on the Neural Engine, a temporal filter and a GPU enhancement, and Video menu effects such as Background run
+on top. Three undocumented camera daemon settings turn off the daemon's part
+([Disabling FaceTime HD camera post-processing on macOS](https://gist.github.com/breitburg/9e88c6bd500902dfda6662b1dc658a59)).
+Classic with the camera on, about 15 s each:
+
+| | Default, Background on | Default, Background off | Processing off, Background on | Processing off, Background off |
+|---|---|---|---|---|
+| Camera → app | 90–107 ms | 57–62 ms | 43–47 ms | **29–30 ms** |
+| Classic per frame, typical / slowest | 12–21 / 24–37 ms | 25 / 31–33 ms | 9.3 / 12 ms | 13 / 14–15 ms |
+| Neural Engine busy | 38% | 38% | 35% | 23% |
+| Mac power | 19.1 W | 17.8 W | 19.5 W | **15.4 W** |
+
+Turning off Background alone saves latency but not Neural Engine time: the daemon throttles its denoiser while
+Background runs (its log says so) and probably runs it on every frame without it, so Classic still waits. With the
+processing off, Classic never waits. It settles at ~13 ms rather than ~9 ms when nothing else keeps the Neural Engine
+busy, but it doesn't stall.
+
+The trade-offs: the settings are system-wide and undocumented, the picture is noisier in low light, and the camera
+drops out of the Video menu. Background keeps running with the processing off, so turn it off in the Video menu first
+for the fastest setup.
+
+Turn the processing off:
+
+```bash
+for k in EnableAppleISPEmulator EnableVEIRL EnableMCTF; do sudo -u _cmiodalassistants defaults write com.apple.coremedia $k -bool NO; done; sudo killall appleh13camerad
+```
+
+Undo:
+
+```bash
+for k in EnableAppleISPEmulator EnableVEIRL EnableMCTF; do sudo -u _cmiodalassistants defaults delete com.apple.coremedia $k; done; sudo killall appleh13camerad
+```
+
+If the camera doesn't come back to the Video menu after undoing, run `killall ControlCenter` (it relaunches at once).
 
 ## Requirements
 
