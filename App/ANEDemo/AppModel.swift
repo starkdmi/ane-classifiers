@@ -62,6 +62,10 @@ final class AppModel {
     @ObservationIgnored private let engine = Engine()
     @ObservationIgnored private let d1 = D1Service()
     @ObservationIgnored private var d1LastResult: CFTimeInterval = 0
+    /// The classic models' class names. `expressionClasses` / `gestureClasses` show whichever pipeline is
+    /// selected (d1 has its own options), so the classic ones are kept here to restore on switching back.
+    @ObservationIgnored private var classicExpressionClasses: [String] = []
+    @ObservationIgnored private var classicGestureClasses: [String] = []
     @ObservationIgnored private let renderer: AVSampleBufferVideoRenderer
     @ObservationIgnored private var started = false
     @ObservationIgnored private var lastStatsLog: CFTimeInterval = 0
@@ -98,6 +102,10 @@ final class AppModel {
         guard kind != pipeline else { return }
         pipeline = kind
         clearResults()
+        if kind == .classic {  // d1 replaced the class names with its own options while it ran
+            expressionClasses = classicExpressionClasses
+            gestureClasses = classicGestureClasses
+        }
         let d1On = kind == .d1
         engine.setPaused(d1On)
         d1.setEnabled(d1On)  // turning d1 off also frees its weights
@@ -278,17 +286,21 @@ final class AppModel {
 
     private func loadModels() {
         let mode = computeMode
-        status = "Loading models for \(mode.rawValue)…"
+        if pipeline == .classic { status = "Loading models for \(mode.rawValue)…" }
         engine.load(mode: mode) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self, self.computeMode == mode else { return }
                 switch result {
                 case .success(let info):
-                    self.expressionClasses = info.expressionClasses
-                    self.gestureClasses = info.gestureClasses
+                    self.classicExpressionClasses = info.expressionClasses
+                    self.classicGestureClasses = info.gestureClasses
                     self.loadSeconds = info.seconds
-                    self.timings = StageTimings()
-                    self.status = "Running on \(mode.rawValue)"
+                    if self.pipeline == .classic {  // in d1 mode the cards, timings and status are d1's
+                        self.expressionClasses = info.expressionClasses
+                        self.gestureClasses = info.gestureClasses
+                        self.timings = StageTimings()
+                        self.status = "Running on \(mode.rawValue)"
+                    }
                     self.logger.info("Loaded models for \(mode.rawValue, privacy: .public) in \(info.seconds, format: .fixed(precision: 2), privacy: .public) s")
                 case .failure(let error):
                     self.status = "Model load failed: \(error.localizedDescription)"
