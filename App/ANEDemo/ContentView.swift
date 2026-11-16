@@ -111,7 +111,8 @@ struct ContentView: View {
 
     // MARK: - Zoom tiles and cards
 
-    /// Face + two hand slots, always three squares so the row never re-lays out.
+    /// Fixed square slots (face + two hands in classic, face + one hand in d1), filled or showing a
+    /// placeholder, so the row never re-lays out while a pipeline runs.
     /// `side == nil` lets the tiles share the available width (narrow layout).
     private func tileRow(side: CGFloat?) -> some View {
         HStack(spacing: 12) {

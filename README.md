@@ -26,7 +26,7 @@ M1 Pro (14-inch MacBook Pro, 2021, 16 GB), built-in FaceTime HD camera (1080p, 3
 | Questions | Fixed classes | Any typed question (`tools/d1_export_plan.py`) |
 
 The d1 numbers match mlx-vlm in Python on the same Mac (616 ms vs 606 ms in Swift for the same 528-token request).
-An M5 Max runs the same request in about 70 ms.
+For scale, the mlx-d1-gestures demo reports about 70 ms for a similar ~670-token request on an M5 Max.
 
 What the measurements turned up:
 
@@ -38,8 +38,8 @@ What the measurements turned up:
 ## Requirements
 
 - Apple silicon Mac, macOS 14 or later
-- Xcode 16 or later (built with Xcode 27.2), with the **Metal Toolchain** component installed
-  (Xcode › Settings › Components); MLX compiles its GPU kernels with it
+- An Xcode with Swift 6.3 or later (MLX Swift 0.33 requires it; built with Xcode 27.2), with the
+  **Metal Toolchain** component installed (Xcode › Settings › Components); MLX compiles its GPU kernels with it
 - [uv](https://docs.astral.sh/uv/) for `tools/setup.sh`
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) only if you change `App/project.yml`
 
@@ -63,8 +63,8 @@ open "App/build/Build/Products/Release/ANE Classifiers.app"
 ```
 
 **Signing**: the project signs to run locally (ad-hoc). macOS ties camera permission to the signature, so it asks
-again after each rebuild. To keep the permission, put your own identity in a git-ignored `App/Local.xcconfig`, as
-`App/Signing.xcconfig` explains. You may also want to change the placeholder bundle ID `com.example.ANEDemo`.
+again after each rebuild. To keep the permission, put your own identity in a git-ignored `App/Config/Local.xcconfig`,
+as `App/Config/Signing.xcconfig` explains. You may also want to change the placeholder bundle ID `com.example.ANEDemo`.
 
 **d1 weights** are found in `weights/d1-2B-MLX-8bit` above the app (the setup script's location), in
 `~/Library/Application Support/ANE Classifiers/d1-2B-MLX-8bit`, or wherever you point **Pipeline › Locate d1 Weights…**.
@@ -119,7 +119,7 @@ App/build/Build/Products/Release/d1check weights/d1-2B-MLX-8bit App/Models/d1_pl
 
 ```
 App/project.yml            XcodeGen spec (App/ANEDemo.xcodeproj is generated from it)
-App/Signing.xcconfig       ad-hoc by default; optional App/Local.xcconfig for your identity
+App/Config/                Signing.xcconfig: ad-hoc by default; optional Local.xcconfig for your identity
 App/ANEDemo/               the app: camera, classic engine, stabilizer, UI
 App/ANEDemo/D1/            d1-2B in MLX Swift (LFM Open License / Apache-2.0, see its LICENSE)
 App/Tools/d1check/         command-line check of the d1 port against mlx-vlm

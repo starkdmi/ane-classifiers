@@ -10,6 +10,10 @@ settings:
     SWIFT_DEFAULT_ACTOR_ISOLATION: nonisolated
     ARCHS: arm64
     MACOSX_DEPLOYMENT_TARGET: "14.0"
+# Listing the xcconfig here (in a subfolder) gives it a stable reference; configFiles alone gets a random
+# ID on every generation. Local.xcconfig is left out on purpose: it is git-ignored and optional.
+fileGroups:
+  - Config/Signing.xcconfig
 packages:
   MLXSwift:
     url: https://github.com/ml-explore/mlx-swift
@@ -50,7 +54,8 @@ targets:
     entitlements:
       path: ANEDemo/ANEDemo.entitlements
       properties:
-        # Not sandboxed: the d1 weights (2.2 GB) are read from the project's weights/ folder.
+        # Not sandboxed: the d1 weights (2.2 GB) are read from a folder outside the app
+        # (weights/ in the repo, Application Support, or one chosen in Pipeline › Locate d1 Weights…).
         com.apple.security.app-sandbox: false
         com.apple.security.device.camera: true
     settings:
@@ -64,10 +69,11 @@ targets:
         CURRENT_PROJECT_VERSION: "1"
         ENABLE_HARDENED_RUNTIME: YES
         COREML_CODEGEN_LANGUAGE: None
-    # Signing lives in Signing.xcconfig (ad-hoc by default; optional git-ignored Local.xcconfig for your own identity).
+    # Signing lives in Config/Signing.xcconfig (ad-hoc by default; optional git-ignored Config/Local.xcconfig
+    # for your own identity).
     configFiles:
-      Debug: Signing.xcconfig
-      Release: Signing.xcconfig
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
 
   # Numeric check of the Swift d1 port against the mlx-vlm reference (no camera, no UI).
   d1check:

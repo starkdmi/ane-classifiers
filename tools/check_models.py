@@ -1,6 +1,10 @@
-"""Quick sanity check of the converted models on tiles from HaGRID's README mosaic.
+"""Quick sanity check of the converted gesture and expression models on tiles of HaGRID's README mosaic
+(a 10x5 grid of 128 px sample photos; HaGRID license, not included here).
 
-Usage: .venv/bin/python -I tools/check_models.py weights/testdata/example.jpeg
+Usage:
+  curl -L --create-dirs -o weights/testdata/example.jpeg \
+      https://raw.githubusercontent.com/hukenovs/hagrid/master/images/example.jpeg
+  .venv/bin/python -I tools/check_models.py weights/testdata/example.jpeg
 """
 import sys
 import time
@@ -12,7 +16,7 @@ from PIL import Image
 TILE = 128
 # (row, col) tiles in the 10x5 mosaic with a clearly visible gesture
 GESTURE_TILES = {"thumbs up": (0, 8), "thumbs down": (4, 4), "mute": (2, 9), "peace-ish": (3, 4)}
-# rough face box inside tile (row 1, col 8): bearded man, in tile-local pixels
+# rough face box inside tile (row 1, col 8), in tile-local pixels
 FACE_TILE, FACE_BOX = (1, 8), (10, 10, 85, 95)
 
 

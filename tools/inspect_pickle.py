@@ -13,25 +13,28 @@ import zipfile
 from collections import Counter
 
 
+STRING_PUSHES = ("SHORT_BINUNICODE", "BINUNICODE", "UNICODE", "BINUNICODE8")
+MEMO_MARKERS = ("MEMOIZE", "PUT", "BINPUT", "LONG_BINPUT")  # store a copy; they don't change the stack
+
+
 def globals_in_pickle(data: bytes) -> Counter:
+    """Every GLOBAL, and every STACK_GLOBAL whose module and name are the two string literals pushed right
+    before it (protocol 4+). A STACK_GLOBAL fed any other way (e.g. strings fetched back from the memo) is
+    reported as unresolved rather than guessed, so it can never hide behind a wrong name."""
     found: Counter = Counter()
-    recent_strings: list[str] = []
+    previous: list[tuple[str, object]] = []  # the last two stack-changing opcodes (name, arg)
     for opcode, arg, _pos in pickletools.genops(data):
         name = opcode.name
-        if name in ("SHORT_BINUNICODE", "BINUNICODE", "UNICODE", "BINUNICODE8"):
-            recent_strings.append(arg)
-            recent_strings = recent_strings[-2:]
-        elif name in ("BINGET", "LONG_BINGET", "GET"):
-            # memo lookups can feed STACK_GLOBAL; we track memoized strings below
-            pass
         if name == "GLOBAL":
             module, attr = arg.split(" ", 1) if " " in arg else arg.split("\n", 1)
             found[f"{module}.{attr}"] += 1
         elif name == "STACK_GLOBAL":
-            if len(recent_strings) == 2:
-                found[f"{recent_strings[0]}.{recent_strings[1]}"] += 1
+            if len(previous) == 2 and all(op in STRING_PUSHES for op, _ in previous):
+                found[f"{previous[0][1]}.{previous[1][1]}"] += 1
             else:
-                found["<STACK_GLOBAL with non-literal args>"] += 1
+                found["<STACK_GLOBAL with unresolved module/name: inspect manually>"] += 1
+        if name not in MEMO_MARKERS:
+            previous = (previous + [(name, arg)])[-2:]
     return found
 
 

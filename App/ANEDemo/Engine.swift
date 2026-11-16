@@ -408,7 +408,7 @@ final class InferencePipeline {
         timings.faceDetect = faceMs
         timings.gesture = gestureModelMs + gestureDecodeMs
         timings.expression = (t3 - t2) * 1000
-        timings.total = (t4 - t0) * 1000  // wall time (Vision's face detection overlaps the gesture model)
+        timings.total = (t4 - t0) * 1000  // wall time: Vision face detection and Hybrid gestures run in parallel
         profiler?.record("letterbox", timings.letterbox)
         profiler?.record("total", timings.total)
 
@@ -545,9 +545,7 @@ final class InferencePipeline {
         }
     }
 
-    /// Square zoom tile around `rect` (normalized, top-left), scaled on the CPU (vImage, ~0.5 ms) into a
-    /// fixed-size CGImage. The square is shifted to stay inside the frame rather than clipped, so tiles
-    /// near the edges don't distort. (Replaces a Core Image/GPU path that cost 4-7 ms per frame.)
+    /// A zoom tile for the UI; see `zoomTile`.
     private func crop(_ source: CVPixelBuffer, around rect: CGRect, zoom: CGFloat) -> CGImage? {
         zoomTile(source, around: rect, zoom: zoom, renderer: tileRenderer)
     }
@@ -710,8 +708,9 @@ final class Letterboxer {
     }
 }
 
-/// Square zoom tile around `rect` (normalized, top-left), scaled on the CPU into a fixed-size CGImage.
-/// The square is shifted to stay inside the frame rather than clipped, so tiles near the edges don't distort.
+/// Square zoom tile around `rect` (normalized, top-left), scaled on the CPU with vImage (~0.5 ms, keeping the
+/// GPU free) into a fixed-size CGImage. The square is shifted to stay inside the frame rather than clipped,
+/// so tiles near the edges don't distort.
 func zoomTile(_ source: CVPixelBuffer, around rect: CGRect, zoom: CGFloat, renderer: TileRenderer) -> CGImage? {
     let w = CGFloat(CVPixelBufferGetWidth(source)), h = CGFloat(CVPixelBufferGetHeight(source))
     let side = min(max(rect.width * w, rect.height * h) * zoom, w, h)

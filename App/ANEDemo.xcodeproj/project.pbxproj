@@ -52,11 +52,11 @@
 		BE58719263B3B6095687AB0A /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		C6CD812A0F90FB5C5861B819 /* BlazeFace.mlpackage */ = {isa = PBXFileReference; path = BlazeFace.mlpackage; sourceTree = "<group>"; };
 		C7C0113E68B31B92AE56CEEF /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
+		DC02DAFBAF34F290722CF068 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		E3E328721BD5A03D34B78D35 /* Results.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Results.swift; sourceTree = "<group>"; };
 		F5263D76A1D29B51581071E7 /* ANEDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ANEDemo.entitlements; sourceTree = "<group>"; };
 		F8B120E950B894B9188F6574 /* D1Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = D1Model.swift; sourceTree = "<group>"; };
 		FB4EDF5517C013414297F8B3 /* D1Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = D1Service.swift; sourceTree = "<group>"; };
-		"TEMP_E80AA5D1-4FF2-4D3F-B768-F17DF42CB41A" /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +98,7 @@
 			isa = PBXGroup;
 			children = (
 				AF2EEEADEFB73D825134B25D /* ANEDemo */,
+				B44937E19869FF7B11093F09 /* Config */,
 				171ABA6EAB6B34F3DD4A2D64 /* Models */,
 				AF9EB40BADCA32A8C172B298 /* Tools */,
 				56DD085E29B209CFC5B63ACA /* Products */,
@@ -158,12 +159,12 @@
 			path = Tools;
 			sourceTree = "<group>";
 		};
-		"TEMP_8909782A-BB3D-4FDE-8E9C-07CBBAB56BD3" /* App */ = {
+		B44937E19869FF7B11093F09 /* Config */ = {
 			isa = PBXGroup;
 			children = (
-				"TEMP_E80AA5D1-4FF2-4D3F-B768-F17DF42CB41A" /* Signing.xcconfig */,
+				DC02DAFBAF34F290722CF068 /* Signing.xcconfig */,
 			);
-			path = App;
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -442,7 +443,7 @@
 		};
 		B8F17580770D64934AA965CF /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_E80AA5D1-4FF2-4D3F-B768-F17DF42CB41A" /* Signing.xcconfig */;
+			baseConfigurationReference = DC02DAFBAF34F290722CF068 /* Signing.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ANEDemo/ANEDemo.entitlements;
@@ -484,7 +485,7 @@
 		};
 		F9F1C4A63B2FB58B5B9E18DE /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = "TEMP_E80AA5D1-4FF2-4D3F-B768-F17DF42CB41A" /* Signing.xcconfig */;
+			baseConfigurationReference = DC02DAFBAF34F290722CF068 /* Signing.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = ANEDemo/ANEDemo.entitlements;

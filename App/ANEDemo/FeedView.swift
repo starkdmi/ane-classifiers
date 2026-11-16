@@ -32,7 +32,6 @@ final class LayerHostView: NSView {
     }
 }
 
-/// Live feed with face / hand boxes drawn on top, in the same normalized top-left space.
 /// One labeled box on the video, in normalized (0...1, top-left) frame coordinates.
 struct OverlayBox: Identifiable, Equatable {
     var id: String
@@ -41,6 +40,7 @@ struct OverlayBox: Identifiable, Equatable {
     var text: String
 }
 
+/// Live feed with face / hand boxes drawn on top, in the same normalized top-left space.
 struct AnnotatedFeed: View {
     let model: AppModel
 

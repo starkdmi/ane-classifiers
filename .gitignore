@@ -17,8 +17,8 @@ xcuserdata/
 *.xcresult
 DerivedData/
 
-# Personal signing (see App/Signing.xcconfig)
-App/Local.xcconfig
+# Personal signing (see App/Config/Signing.xcconfig)
+App/Config/Local.xcconfig
 
 # macOS
 .DS_Store
