@@ -1,0 +1,18 @@
+// Code signing for the ANE Classifiers app.
+//
+// Default: "Sign to Run Locally" (ad-hoc). It builds and runs on this Mac, but macOS ties camera
+// permission to the signature, so it asks again after every rebuild.
+//
+// For a stable signature (camera permission kept across builds), create App/Local.xcconfig
+// (git-ignored) with your own identity, for example:
+//
+//   CODE_SIGN_IDENTITY = Apple Development: Your Name (ABCDE12345)
+//   DEVELOPMENT_TEAM = YOURTEAMID
+//
+// `security find-identity -v -p codesigning` lists the identities on this Mac.
+
+CODE_SIGN_IDENTITY = -
+CODE_SIGN_STYLE = Manual
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"
