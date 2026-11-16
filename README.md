@@ -11,6 +11,9 @@ A native macOS app that reads **hand gestures and facial expressions from the we
 
 Switch between them with ⌘K / ⌘D. Everything runs on the Mac; no frame leaves it.
 
+![ANE Classifiers in Classic mode: a face and two hands, each with its own box, label and zoomed tile, at about 14 ms per frame](docs/screenshot.webp)
+<sub>Classic mode on a generated test image: one face, two hands, two gestures, ~14 ms per frame.</sub>
+
 ## Results
 
 M1 Pro (14-inch MacBook Pro, 2021, 16 GB), built-in FaceTime HD camera (1080p, 30 fps), with everyday apps open.
